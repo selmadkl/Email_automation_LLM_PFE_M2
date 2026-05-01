@@ -2,8 +2,9 @@ import requests
 import json
 from prompts import prompt_classification, prompt_tag_semantique
 from dotenv import load_dotenv
-load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
 import os
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'))
+
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 MODEL      = os.getenv("OLLAMA_MODEL", "pfe-assistant")

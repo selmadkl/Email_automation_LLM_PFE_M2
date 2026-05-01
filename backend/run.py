@@ -166,24 +166,34 @@ def get_stats():
         'par_priorite':  [dict(r) for r in par_priorite],
         'par_profil':    [dict(r) for r in par_profil],
     })
-
 @app.route('/api/recurrents', methods=['GET'])
 def get_recurrents():
     conn = sqlite3.connect(db.DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
-        """
-        SELECT categorie, sous_categorie,
-               COUNT(*) as occurrences,
-               MAX(date_classification) as derniere_occurrence
-        FROM emails_processed
-        WHERE est_recurrent = 1
-        GROUP BY categorie, sous_categorie
-        ORDER BY occurrences DESC
-        """
+        "SELECT * FROM groupes_recurrents ORDER BY occurrences DESC"
     ).fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
+
+
+@app.route('/api/recurrents/<int:groupe_id>/emails', methods=['GET'])
+def get_emails_groupe(groupe_id):
+    conn = sqlite3.connect(db.DB_PATH)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(
+        """
+        SELECT message_id, expediteur, sujet, resume,
+               priorite_finale, date_classification
+        FROM emails_processed
+        WHERE groupe_id = ?
+        ORDER BY date_classification DESC
+        """,
+        (groupe_id,)
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
 
 @app.route('/api/expediteurs', methods=['GET'])
 def get_expediteurs():

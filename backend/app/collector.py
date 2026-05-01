@@ -1,16 +1,32 @@
+import os
 import time
+from dotenv import load_dotenv
 from simplegmail import Gmail
 
+# 1. On localise le dossier où se trouve le script actuel (backend/app/)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 2. On charge le .env qui se trouve un dossier au-dessus (dans backend/)
+dotenv_path = os.path.join(BASE_DIR, '..', '.env')
+load_dotenv(dotenv_path)
+
 def lancer_pipeline_react(db, traiter_email_complet):
-    print("🚀 Pipeline 'Luxe' démarré (SimpleGmail + React ready)")
-    
     try:
-        # Initialisation (utilise ton client_secret.json et crée token.json)
-        gmail = Gmail() 
+        # 3. On construit les chemins complets vers les fichiers de config
+        # os.getenv("TOKEN_PATH") récupère "config/gmail_token.json"
+        # On remonte d'un cran (..) pour sortir de 'app' et entrer dans 'config'
+        path_secret = os.path.join(BASE_DIR, '..', os.getenv("CLIENT_SECRET_PATH"))
+        path_token = os.path.join(BASE_DIR, '..', os.getenv("TOKEN_PATH"))
+
+        print(f"📂 Chemin secret : {path_secret}")
+        
+        # 4. Initialisation avec les bons arguments
+        gmail = Gmail(client_secret_file=path_secret, creds_file=path_token)
+        
         print("✅ Connexion Gmail API : OK")
+        
     except Exception as e:
         print(f"❌ Erreur d'initialisation Gmail : {e}")
-        return
 
     while True:
         try:

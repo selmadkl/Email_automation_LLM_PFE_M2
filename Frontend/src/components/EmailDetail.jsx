@@ -1,7 +1,6 @@
 import { X, Mail, Brain, CheckCircle, Paperclip, Reply, Download, Eye, ChevronDown, ChevronUp, Send, Trash2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-
 function formatDate(dateStr) {
   if (!dateStr) return "—";
   const date = new Date(dateStr);
@@ -22,6 +21,7 @@ function formatDate(dateStr) {
 
   return { dateFormatee, heure, relatif };
 }
+
 const prioriteStyle = {
   Haute:   "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
   Moyenne: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
@@ -42,13 +42,12 @@ const s = (val, fallback = "—") => (val || fallback).toString().replace(/_/g, 
 function InfoRow({ label, value }) {
   return (
     <div className="flex items-start gap-3 py-2.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
-      <span className="w-32 text-xs font-semibold text-gray-400 uppercase tracking-wide shrink-0 pt-0.5">{label}</span>
-      <span className="text-sm text-gray-800 dark:text-gray-200 flex-1">{value || "—"}</span>
+      <span className="w-28 text-xs font-semibold text-gray-400 uppercase tracking-wide shrink-0 pt-0.5">{label}</span>
+      <span className="text-sm text-gray-800 dark:text-gray-200 flex-1 break-words">{value || "—"}</span>
     </div>
   );
 }
 
-// ── Composant message thread (style Gmail) ──
 function ThreadMessage({ msg, isLast, messageId, onReplyClick }) {
   const [open, setOpen] = useState(isLast);
 
@@ -56,18 +55,13 @@ function ThreadMessage({ msg, isLast, messageId, onReplyClick }) {
     .replace(/<.*?>/, "").trim()
     .split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
-  const couleurAvatar = msg.est_moi
-    ? "bg-indigo-500"
-    : "bg-emerald-500";
+  const couleurAvatar = msg.est_moi ? "bg-indigo-500" : "bg-emerald-500";
 
   return (
-    <div className={`border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all
-      ${msg.est_moi ? "ml-4" : ""}`}>
-
-      {/* Header cliquable */}
+    <div className={`border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all ${msg.est_moi ? "ml-2 sm:ml-4" : ""}`}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left"
+        className="w-full flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left"
       >
         <div className={`w-8 h-8 rounded-full ${couleurAvatar} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
           {initiales}
@@ -91,17 +85,12 @@ function ThreadMessage({ msg, isLast, messageId, onReplyClick }) {
         }
       </button>
 
-      {/* Corps ouvert */}
       {open && (
-        <div className="px-4 pb-4">
+        <div className="px-3 sm:px-4 pb-4">
           <div className="h-px bg-gray-100 dark:bg-gray-700 mb-3" />
-
-          {/* Corps texte */}
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
             {msg.corps || "Aucun contenu texte."}
           </p>
-
-          {/* Pièces jointes du message */}
           {msg.pjs?.length > 0 && (
             <div className="mt-4">
               <div className="flex items-center gap-2 mb-2">
@@ -114,19 +103,15 @@ function ThreadMessage({ msg, isLast, messageId, onReplyClick }) {
                 {msg.pjs.map((pj, i) => (
                   <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
                     <Paperclip size={12} className="text-indigo-500" />
-                    <span className="text-xs text-gray-700 dark:text-gray-300 max-w-[120px] truncate">{pj.nom}</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300 max-w-[100px] truncate">{pj.nom}</span>
                     <div className="flex gap-1">
-                      <a
-                        href={`http://127.0.0.1:5000/api/attachments/view/${msg.id}/${pj.attachment_id}/${pj.nom}`}
+                      <a href={`http://127.0.0.1:5000/api/attachments/view/${msg.id}/${pj.attachment_id}/${pj.nom}`}
                         target="_blank" rel="noreferrer"
-                        className="p-1 rounded text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
-                      >
+                        className="p-1 rounded text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
                         <Eye size={11} />
                       </a>
-                      <a
-                        href={`http://127.0.0.1:5000/api/attachments/download/${msg.id}/${pj.attachment_id}/${pj.nom}`}
-                        className="p-1 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
+                      <a href={`http://127.0.0.1:5000/api/attachments/download/${msg.id}/${pj.attachment_id}/${pj.nom}`}
+                        className="p-1 rounded text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <Download size={11} />
                       </a>
                     </div>
@@ -135,8 +120,6 @@ function ThreadMessage({ msg, isLast, messageId, onReplyClick }) {
               </div>
             </div>
           )}
-
-          {/* Bouton répondre dans le message */}
           {isLast && (
             <button
               onClick={onReplyClick}
@@ -152,7 +135,6 @@ function ThreadMessage({ msg, isLast, messageId, onReplyClick }) {
   );
 }
 
-// ── Zone de réponse inline ──
 function ReplyBox({ email, onRepondu, onClose }) {
   const [corps, setCorps]     = useState("");
   const [files, setFiles]     = useState([]);
@@ -176,12 +158,8 @@ function ReplyBox({ email, onRepondu, onClose }) {
       const res  = await fetch("http://127.0.0.1:5000/api/reply", { method: "POST", body: formData });
       const data = await res.json();
 
-      if (data.success) {
-        setSent(true);
-        onRepondu(email.message_id);
-      } else {
-        setError(data.error || "Erreur inconnue");
-      }
+      if (data.success) { setSent(true); onRepondu(email.message_id); }
+      else setError(data.error || "Erreur inconnue");
     } catch {
       setError("Impossible de joindre le serveur");
     }
@@ -198,7 +176,7 @@ function ReplyBox({ email, onRepondu, onClose }) {
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
       <div className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-500">À : {email.expediteur}</span>
+        <span className="text-xs font-semibold text-gray-500 truncate">À : {email.expediteur}</span>
         <button onClick={onClose}><X size={13} className="text-gray-400 hover:text-gray-600" /></button>
       </div>
       <textarea
@@ -223,20 +201,15 @@ function ReplyBox({ email, onRepondu, onClose }) {
       )}
       {error && <p className="px-4 py-1 text-xs text-red-500">{error}</p>}
       <div className="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-600 font-semibold"
-        >
+        <button onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-600 font-semibold">
           <Paperclip size={13} />
           Joindre
         </button>
         <input ref={fileInputRef} type="file" multiple className="hidden"
           onChange={e => setFiles(prev => [...prev, ...Array.from(e.target.files)])} />
-        <button
-          onClick={handleSend}
-          disabled={sending || !corps.trim()}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold"
-        >
+        <button onClick={handleSend} disabled={sending || !corps.trim()}
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold">
           <Send size={12} />
           {sending ? "Envoi..." : "Envoyer"}
         </button>
@@ -245,13 +218,12 @@ function ReplyBox({ email, onRepondu, onClose }) {
   );
 }
 
-// ── Composant principal ──
 export default function EmailDetail({ email, onClose, traites, onTraiter, repondus, onRepondu }) {
-  const [confirm, setConfirm]       = useState(false);
-  const [replyOpen, setReplyOpen]   = useState(false);
-  const [thread, setThread]         = useState([]);
+  const [confirm, setConfirm]           = useState(false);
+  const [replyOpen, setReplyOpen]       = useState(false);
+  const [thread, setThread]             = useState([]);
   const [threadLoading, setThreadLoading] = useState(false);
-  const [visible, setVisible]       = useState(false);
+  const [visible, setVisible]           = useState(false);
 
   useEffect(() => {
     if (email) {
@@ -260,10 +232,7 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
         setThreadLoading(true);
         fetch(`http://127.0.0.1:5000/api/thread/${email.thread_id}`)
           .then(r => r.json())
-          .then(data => {
-            setThread(data.messages || []);
-            setThreadLoading(false);
-          })
+          .then(data => { setThread(data.messages || []); setThreadLoading(false); })
           .catch(() => setThreadLoading(false));
       }
     } else {
@@ -278,15 +247,8 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
   const traite    = traites.includes(email.message_id);
   const repondu   = (repondus || []).includes(email.message_id);
 
-  function handleTraiter() {
-    setConfirm(false);
-    onTraiter(email.message_id);
-  }
-
-  function handleClose() {
-    setVisible(false);
-    setTimeout(onClose, 300);
-  }
+  function handleTraiter() { setConfirm(false); onTraiter(email.message_id); }
+  function handleClose() { setVisible(false); setTimeout(onClose, 300); }
 
   return (
     <>
@@ -296,43 +258,49 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
         onClick={handleClose}
       />
 
-      {/* Panel latéral droit */}
-      <div className={`fixed top-0 right-0 z-50 h-full w-full max-w-5xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col transition-transform duration-300 ${visible ? "translate-x-0" : "translate-x-full"}`}>
+      {/* Panel — plein écran sur mobile, large panel sur desktop */}
+      <div className={`fixed top-0 right-0 z-50 h-full
+        w-full sm:w-[calc(100vw-4rem)] lg:w-[calc(100vw-14rem)]
+        bg-white dark:bg-gray-900 shadow-2xl flex flex-col
+        transition-transform duration-300 ${visible ? "translate-x-0" : "translate-x-full"}`}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <div className="flex items-center gap-3">
-            <button onClick={handleClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={handleClose}
+              className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0">
               <X size={16} />
             </button>
-            <div>
-              <h2 className="text-sm font-bold text-gray-800 dark:text-white truncate max-w-xl">
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-gray-800 dark:text-white truncate">
                 {email.sujet || "Sans objet"}
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">{email.expediteur}</p>
+              <p className="text-xs text-gray-400 mt-0.5 truncate">{email.expediteur}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 ml-2">
             {repondu && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-500">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-500">
                 <Reply size={11} /> Répondu
               </span>
             )}
             {traite && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-400">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-400">
                 <CheckCircle size={11} /> Traité
               </span>
             )}
           </div>
         </div>
 
-        {/* Contenu 2 colonnes */}
-        <div className="flex flex-1 overflow-hidden">
+        {/* Contenu : 1 colonne scrollable sur mobile, 2 colonnes sur lg+ */}
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
 
-          {/* ── COLONNE GAUCHE ── */}
-          <div className="w-80 shrink-0 border-r border-gray-100 dark:border-gray-800 overflow-y-auto px-5 py-5 space-y-5">
+          {/* ── COLONNE INFOS (gauche sur lg, section scrollable sur mobile) ── */}
+          <div className="lg:w-96 lg:shrink-0 lg:border-r border-gray-100 dark:border-gray-800
+            overflow-y-auto px-4 sm:px-5 py-5 space-y-5
+            border-b lg:border-b-0 border-gray-100 dark:border-gray-800">
 
-            {/* Badges priorité / conformité */}
+            {/* Badges */}
             <div className="flex flex-wrap gap-2">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${prioriteStyle[priorite] || prioriteStyle["Basse"]}`}>
                 <span className={`w-2 h-2 rounded-full ${prioriteDot[priorite] || "bg-gray-400"}`} />
@@ -341,6 +309,17 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${conformiteStyle[conformite] || "bg-gray-100 text-gray-500"}`}>
                 {conformite}
               </span>
+              {/* Badges traité/répondu visibles seulement sur mobile dans cette zone */}
+              {repondu && (
+                <span className="sm:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-500">
+                  <Reply size={11} /> Répondu
+                </span>
+              )}
+              {traite && (
+                <span className="sm:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-400">
+                  <CheckCircle size={11} /> Traité
+                </span>
+              )}
             </div>
 
             {/* Infos */}
@@ -350,7 +329,11 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
               <InfoRow label="Catégorie"      value={s(email.categorie)} />
               <InfoRow label="Sous-catégorie" value={s(email.sous_categorie)} />
               <InfoRow label="Urgence LLM"    value={email.urgence_llm || "—"} />
-              <InfoRow label="Date" value={(() => {  const d = formatDate(email.date_classification);  return d ? `${d.dateFormatee} ${d.heure} (${d.relatif})` : "—";})()} />            </div>
+              <InfoRow label="Date" value={(() => {
+                const d = formatDate(email.date_classification);
+                return d ? `${d.dateFormatee} ${d.heure} (${d.relatif})` : "—";
+              })()} />
+            </div>
 
             {/* Résumé IA */}
             <div>
@@ -368,10 +351,8 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
             {/* Bouton Marquer traité */}
             <div className="pt-2">
               {!traite ? (
-                <button
-                  onClick={() => setConfirm(true)}
-                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors"
-                >
+                <button onClick={() => setConfirm(true)}
+                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors">
                   Marquer comme traité
                 </button>
               ) : (
@@ -382,10 +363,8 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
             </div>
           </div>
 
-          {/* ── COLONNE DROITE ── */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-4">
-
-            {/* Thread / Conversation */}
+          {/* ── COLONNE CONVERSATION (droite sur lg, section en dessous sur mobile) ── */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 flex flex-col gap-4">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Mail size={14} className="text-gray-400" />
@@ -423,16 +402,10 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
               )}
             </div>
 
-            {/* Zone de réponse */}
             {replyOpen && (
-              <ReplyBox
-                email={email}
-                onRepondu={onRepondu}
-                onClose={() => setReplyOpen(false)}
-              />
+              <ReplyBox email={email} onRepondu={onRepondu} onClose={() => setReplyOpen(false)} />
             )}
 
-            {/* Bouton Répondre si pas encore ouvert */}
             {!replyOpen && (
               <button
                 onClick={() => setReplyOpen(true)}
@@ -450,7 +423,7 @@ export default function EmailDetail({ email, onClose, traites, onTraiter, repond
         </div>
       </div>
 
-      {/* Confirmation traité */}
+      {/* Modal confirmation */}
       {confirm && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 px-4" onClick={() => setConfirm(false)}>
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-gray-100 dark:border-gray-800" onClick={e => e.stopPropagation()}>

@@ -10,7 +10,6 @@ const safeFetch = (url) =>
       console.error("Erreur API:", url, err);
       return null;
     });
-
 export const fetchStats       = () => safeFetch(`${BASE}/stats`);
 export const fetchEmails      = () => safeFetch(`${BASE}/emails`);
 export const fetchEmail       = (id) => safeFetch(`${BASE}/emails/${id}`);
