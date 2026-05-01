@@ -1,6 +1,26 @@
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";
 
+function formatDate(dateStr) {
+  if (!dateStr) return "—";
+  const date = new Date(dateStr);
+  const now  = new Date();
+  const diff = now - date;
+  const jours = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  const options = { weekday: "short", day: "numeric", month: "short" };
+  const dateFormatee = date.toLocaleDateString("fr-FR", options);
+  const heure = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+  let relatif = "";
+  if (jours === 0) relatif = "aujourd'hui";
+  else if (jours === 1) relatif = "il y a 1 jour";
+  else if (jours < 7) relatif = `il y a ${jours} jours`;
+  else if (jours < 30) relatif = `il y a ${Math.floor(jours / 7)} sem.`;
+  else relatif = `il y a ${Math.floor(jours / 30)} mois`;
+
+  return { dateFormatee, heure, relatif };
+}
 const prioriteStyle = {
   Haute: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400",
   Moyenne: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400",
@@ -128,14 +148,22 @@ export default function EmailsTable({ emails = [], onSelect, traites = [] }) {
                       {email.profil}
                     </td>
                     <td className="px-5 py-3.5 text-gray-400 text-xs">
-                      <div className="flex items-center gap-2">
-                        {email.date_classification?.slice(0, 10)}
-                        {traites.includes(email.message_id) && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600">
-                            Traité
-                          </span>
-                        )}
-                      </div>
+                      {(() => {
+                        const d = formatDate(email.date_classification);
+                        return (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-gray-600 dark:text-gray-300 font-medium">
+                              {d.dateFormatee} {d.heure}
+                            </span>
+                            <span className="text-gray-400 text-xs">{d.relatif}</span>
+                            {traites.includes(email.message_id) && (
+                              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 w-fit">
+                                Traité
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-5 py-3.5">
                       <Eye size={15} className="text-gray-300 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />

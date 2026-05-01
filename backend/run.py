@@ -199,5 +199,69 @@ def ping():
     conn.close()
     return jsonify({"total": total})
 
+
+@app.route('/api/thread/<thread_id>', methods=['GET'])
+def get_thread(thread_id):
+    try:
+        service = get_gmail_service()
+        thread  = service.users().threads().get(
+            userId='me',
+            id=thread_id,
+            format='full'
+        ).execute()
+
+        # Récupérer l'adresse Gmail de l'utilisateur
+        profile     = service.users().getProfile(userId='me').execute()
+        mon_email   = profile.get('emailAddress', '').lower()
+
+        messages = []
+        for msg in thread.get('messages', []):
+            headers = {h['name']: h['value'] for h in msg['payload'].get('headers', [])}
+            corps   = ""
+
+            # Extraire corps — cherche dans parts récursivement
+            def extraire_corps(payload):
+                if payload.get('mimeType') == 'text/plain':
+                    data = payload.get('body', {}).get('data', '')
+                    if data:
+                        return base64.urlsafe_b64decode(data).decode('utf-8', errors='ignore')
+                for part in payload.get('parts', []):
+                    result = extraire_corps(part)
+                    if result:
+                        return result
+                return ""
+
+            corps = extraire_corps(msg['payload']).strip()
+
+            # Extraire pièces jointes du message
+            pjs = []
+            for part in msg['payload'].get('parts', []):
+                filename      = part.get('filename')
+                attachment_id = part.get('body', {}).get('attachmentId')
+                if filename and attachment_id:
+                    pjs.append({
+                        'nom':           filename,
+                        'type':          part.get('mimeType', 'application/octet-stream'),
+                        'attachment_id': attachment_id
+                    })
+
+            expediteur = headers.get('From', '')
+            est_moi    = mon_email in expediteur.lower()
+
+            messages.append({
+                'id':         msg['id'],
+                'de':         expediteur,
+                'a':          headers.get('To', '—'),
+                'sujet':      headers.get('Subject', 'Sans objet'),
+                'date':       headers.get('Date', '—'),
+                'corps':      corps,
+                'est_moi':    est_moi,
+                'pjs':        pjs,
+            })
+
+        return jsonify({'messages': messages, 'mon_email': mon_email})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
