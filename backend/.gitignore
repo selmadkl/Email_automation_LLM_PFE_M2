@@ -1,0 +1,12 @@
+.env
+config/gmail_token.json
+config/client_secret.json
+
+models/Modelefile 
+models/qwen2.5-1.5b-instruct.Q4_K_M.gguf
+database/emails_pfe.db
+database/chroma_db/
+*.gguf
+__pycache__
+*.sqlite3
+*.bin

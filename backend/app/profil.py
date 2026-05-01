@@ -23,9 +23,6 @@ def detecter_profil_expediteur(email_raw: str) -> dict:
         conn.close()
         if result:
             return {"profil": result[0], "nom": result[1] if result[1] else "Inconnu"}
-        domaine = email_expediteur.split("@")[-1]
-        if domaine == DOMAINE_INSTITUTIONNEL:
-            return {"profil": "Institutionnel", "nom": "Membre FGEI"}
         return {"profil": "Externe", "nom": "Inconnu"}
     except Exception as e:
         print(f"⚠️ Erreur profil : {e}")
